@@ -1,8 +1,6 @@
 package ru.lanwen.jenkins.juseppe.gen;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.lanwen.jenkins.juseppe.beans.Plugin;
 import ru.lanwen.jenkins.juseppe.beans.UpdateSite;
 import ru.lanwen.jenkins.juseppe.props.Props;
@@ -13,6 +11,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static ru.lanwen.jenkins.juseppe.util.Marshaller.serializerForReleaseHistory;
 
@@ -22,7 +22,7 @@ import static ru.lanwen.jenkins.juseppe.util.Marshaller.serializerForReleaseHist
 public class UpdateSiteGen {
 
     private static final String[] PLUGIN_EXT = new String[]{"hpi"};
-    private static final Logger LOG = LoggerFactory.getLogger(UpdateSiteGen.class);
+    private static final Logger LOG = Logger.getLogger(UpdateSiteGen.class.getName());
 
     private UpdateSite site = new UpdateSite()
             .withUpdateCenterVersion(Props.UPDATE_CENTER_VERSION)
@@ -49,11 +49,11 @@ public class UpdateSiteGen {
      * @param urlBasePath          base URL for downloading hpi files.
      */
     public UpdateSiteGen init(File updateCenterBasePath, final URI urlBasePath) {
-        LOG.info("UpdateSite will be available at {}/{}", urlBasePath, Props.props().getUcJsonName());
+        LOG.log(Level.INFO, "UpdateSite will be available at {}/{}", new Object[] {urlBasePath, Props.props().getUcJsonName()});
 
         Collection<File> collection = FileUtils.listFiles(updateCenterBasePath, PLUGIN_EXT, false);
-        LOG.info("Found {} hpi files in {}... Regenerate json...",
-                collection.size(), updateCenterBasePath.getAbsolutePath());
+        LOG.log(Level.INFO, "Found {} hpi files in {}... Regenerate json...",
+                new Object[] {collection.size(), updateCenterBasePath.getAbsolutePath()});
 
         for (File hpiFile : collection) {
             try {
@@ -63,7 +63,7 @@ public class UpdateSiteGen {
                 this.site.getPlugins().add(plugin);
 
             } catch (Exception e) {
-                LOG.error("Fail to get the {} info", hpiFile.getAbsolutePath(), e);
+                LOG.log(Level.INFO, "Fail to get the " + hpiFile.getAbsolutePath() + " info", e);
             }
         }
 
@@ -89,7 +89,7 @@ public class UpdateSiteGen {
 
 
     public void saveTo(File file, String content) {
-        LOG.info("Save json to {}", file.getAbsolutePath());
+        LOG.log(Level.INFO, "Save json to {}", file.getAbsolutePath());
         try {
             FileUtils.writeStringToFile(file, content);
         } catch (IOException e) {

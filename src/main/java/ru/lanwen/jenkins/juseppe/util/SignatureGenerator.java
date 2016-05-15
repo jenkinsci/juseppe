@@ -14,6 +14,8 @@ import java.security.cert.X509Certificate;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static org.apache.commons.codec.binary.Base64.encodeBase64;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
 /**
  * @author lanwen (Merkushev Kirill)
@@ -28,14 +30,15 @@ public class SignatureGenerator {
     private final TeeOutputStream out;
     private final Signature verifier;
 
-    public SignatureGenerator(X509Certificate signer, PrivateKey key) throws GeneralSecurityException, IOException {
+    public SignatureGenerator(X509Certificate signer, PrivateKeyInfo key) throws GeneralSecurityException, IOException {
         // this is for computing a digest
         sha1 = MessageDigest.getInstance(SHA_1);
         DigestOutputStream dos = new DigestOutputStream(new NullOutputStream(), sha1);
 
         // this is for computing a signature
         sig = Signature.getInstance(SHA_1_WITH_RSA);
-        sig.initSign(key);
+        JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+        sig.initSign(converter.getPrivateKey(key));
         SignatureOutputStream sos = new SignatureOutputStream(sig);
 
         // this is for verifying that signature validates

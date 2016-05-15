@@ -109,4 +109,44 @@ public final class Props {
         return releaseHistoryJsonName;
     }
 
+    public static void setInstance(Props instance) {
+        Props.instance = instance;
+    }
+
+    public void setPlugins(String plugins) {
+        this.plugins = plugins;
+    }
+
+    public void setSaveto(String saveto) {
+        this.saveto = saveto;
+    }
+
+    public void setUcJsonName(String ucJsonName) {
+        this.ucJsonName = ucJsonName;
+    }
+
+    public void setReleaseHistoryJsonName(String releaseHistoryJsonName) {
+        this.releaseHistoryJsonName = releaseHistoryJsonName;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setCert(String cert) {
+        this.cert = cert;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setBaseurl(URI baseurl) {
+        this.baseurl = baseurl;
+    }
+
+    public void setUcId(String ucId) {
+        this.ucId = ucId;
+    }
+
 }

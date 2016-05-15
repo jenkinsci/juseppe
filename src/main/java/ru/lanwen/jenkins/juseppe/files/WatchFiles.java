@@ -1,8 +1,5 @@
 package ru.lanwen.jenkins.juseppe.files;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.WatchKey;
@@ -12,6 +9,8 @@ import static java.lang.String.format;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static ru.lanwen.jenkins.juseppe.files.WatchEventExtension.hasExt;
 import static ru.lanwen.jenkins.juseppe.gen.UpdateSiteGen.createUpdateSite;
 
@@ -22,7 +21,7 @@ import static ru.lanwen.jenkins.juseppe.gen.UpdateSiteGen.createUpdateSite;
  */
 public class WatchFiles extends Thread {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WatchFiles.class);
+    private static final Logger LOG = Logger.getLogger(WatchFiles.class.getName());
 
     private WatchService watcher;
     private Path path;
@@ -51,14 +50,14 @@ public class WatchFiles extends Thread {
 
     @Override
     public void run() {
-        LOG.info("Start to watch for changes: {}", path);
+        LOG.log(Level.INFO, "Start to watch for changes: {}", path);
         try {
             // get the first event before looping
             WatchKey key = watcher.take();
             while (key != null) {
 
                 if (key.pollEvents().stream().anyMatch(hasExt(".hpi"))) {
-                    LOG.trace("HPI list modify found!");
+                    LOG.log(Level.FINE, "HPI list modify found!");
                     createUpdateSite(path.toFile()).save();
                 }
 
@@ -66,8 +65,8 @@ public class WatchFiles extends Thread {
                 key = watcher.take();
             }
         } catch (InterruptedException e) {
-            LOG.debug("Cancelled watch service");
+            LOG.log(Level.FINER, "Cancelled watch service");
         }
-        LOG.info("Stopping to watch {}", path);
+        LOG.log(Level.FINE, "Stopping to watch {}", path);
     }
 }

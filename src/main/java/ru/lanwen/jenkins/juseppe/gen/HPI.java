@@ -3,8 +3,6 @@ package ru.lanwen.jenkins.juseppe.gen;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.lanwen.jenkins.juseppe.beans.Dependency;
 import ru.lanwen.jenkins.juseppe.beans.Developer;
 import ru.lanwen.jenkins.juseppe.beans.Plugin;
@@ -19,6 +17,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +34,7 @@ import static org.apache.commons.lang3.Validate.notBlank;
  * @author JunHo Yoon
  */
 public class HPI {
-    private static final Logger LOG = LoggerFactory.getLogger(HPI.class);
+    private static final Logger LOG = Logger.getLogger(HPI.class.getName());
     private static final Pattern DEVELOPERS_PATTERN = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
     private static final String OPTIONAL_DEPENDENCY = ";resolution:=optional";
@@ -146,7 +146,7 @@ public class HPI {
         }
         if (totalMatched < devs.length()) {
             // ignore and move on
-            LOG.error("Unparsable developer info: '{}'", devs.substring(totalMatched));
+            LOG.log(Level.SEVERE, "Unparsable developer info: '{}'", devs.substring(totalMatched));
         }
         return result;
     }
