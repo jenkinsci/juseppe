@@ -36,10 +36,11 @@ public class ServeCommand extends JuseppeCommand {
     @Override
     public void unsafeRun(Props props) throws Exception {
         Server server;
-        if (port == -1)
-          server = new Server(new InetSocketAddress(props.getHost(),props.getPort()));
-        else
-          server = new Server(port);
+        if (port == -1) {
+            server = new Server(new InetSocketAddress(props.getHost(),props.getPort()));
+        } else {
+            server = new Server(port);
+        }
 
         server.addLifeCycleListener(new GenStarter(props));
 
