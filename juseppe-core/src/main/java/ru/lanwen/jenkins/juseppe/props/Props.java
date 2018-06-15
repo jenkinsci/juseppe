@@ -61,6 +61,9 @@ public final class Props {
     @Property(JuseppeEnvVars.JUSEPPE_BIND_PORT)
     private int port = 8080;
 
+    @Property(JuseppeEnvVars.JUSEPPE_BIND_HOST)
+    private String host = "localhost";
+
     @Property(JuseppeEnvVars.JUSEPPE_BASE_URI)
     private URI baseurl = URI.create("http://localhost:8080");
 
@@ -92,6 +95,10 @@ public final class Props {
 
     public int getPort() {
         return port;
+    }
+
+    public String getHost() {
+        return host;
     }
 
     public String getKeyPath() {
@@ -145,6 +152,11 @@ public final class Props {
         return this;
     }
 
+    public Props withHost(String host) {
+        this.host = host;
+        return this;
+    }
+
     public Props withBaseurl(URI baseurl) {
         this.baseurl = baseurl;
         return this;
@@ -186,6 +198,10 @@ public final class Props {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 
     public void setBaseurl(URI baseurl) {

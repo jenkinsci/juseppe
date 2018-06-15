@@ -17,6 +17,7 @@ public final class JuseppeEnvVars {
     static final String JUSEPPE_BASE_URI = "juseppe.baseurl";
     static final String JUSEPPE_UPDATE_CENTER_ID = "juseppe.update.center.id";
     static final String JUSEPPE_BIND_PORT = "juseppe.jetty.port";
+    static final String JUSEPPE_BIND_HOST = "juseppe.jetty.host";
     static final String JUSEPPE_RECURSIVE_WATCH = "juseppe.recursive.watch";
 
     private JuseppeEnvVars() {
@@ -111,6 +112,16 @@ public final class JuseppeEnvVars {
             @Override
             public String resolved() {
                 return String.valueOf(populated().getPort());
+            }
+        },
+
+        JUSEPPE_BIND_HOST(
+                JuseppeEnvVars.JUSEPPE_BIND_HOST,
+                "hostname or address for juseppe file server. Defaults to `localhost`"
+        ) {
+            @Override
+            public String resolved() {
+                return populated().getHost();
             }
         },
 

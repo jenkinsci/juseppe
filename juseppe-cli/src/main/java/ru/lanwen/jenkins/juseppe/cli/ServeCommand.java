@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import ru.lanwen.jenkins.juseppe.files.WatchStarter;
 import ru.lanwen.jenkins.juseppe.props.Props;
 import ru.lanwen.jenkins.juseppe.serve.GenStarter;
+import java.net.InetSocketAddress;
 
 import static ru.lanwen.jenkins.juseppe.files.WatchFiles.watchFor;
 
@@ -34,7 +35,12 @@ public class ServeCommand extends JuseppeCommand {
 
     @Override
     public void unsafeRun(Props props) throws Exception {
-        Server server = new Server(port == -1 ? props.getPort() : port);
+        Server server;
+        if (port == -1)
+          server = new Server(new InetSocketAddress(props.getHost(),props.getPort()));
+        else
+          server = new Server(port);
+
         server.addLifeCycleListener(new GenStarter(props));
 
         if (isWatch()) {

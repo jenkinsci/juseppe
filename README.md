@@ -117,6 +117,9 @@ Complete list of vars can be found after `juseppe env` command.
 - `JUSEPPE_BIND_PORT` (`juseppe.jetty.port`)   
   port for juseppe file server. Defaults to `8080`
 
+- `JUSEPPE_BIND_HOST` (`juseppe.jetty.host`)   
+  hostname or address for juseppe file server. Defaults to `localhost`
+
 - `JUSEPPE_RECURSIVE_WATCH` (`juseppe.recursive.watch`)
   watch for file changes recursively Defaults to `true`
 
