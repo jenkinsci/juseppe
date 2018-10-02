@@ -1,16 +1,15 @@
 package ru.lanwen.jenkins.juseppe.gen;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.lanwen.jenkins.juseppe.beans.Dependency;
-import ru.lanwen.jenkins.juseppe.beans.Developer;
-import ru.lanwen.jenkins.juseppe.beans.Plugin;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.substringBefore;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.apache.commons.lang3.Validate.notBlank;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,11 +21,17 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.substringBefore;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.apache.commons.lang3.Validate.notBlank;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ru.lanwen.jenkins.juseppe.beans.Dependency;
+import ru.lanwen.jenkins.juseppe.beans.Developer;
+import ru.lanwen.jenkins.juseppe.beans.Plugin;
 
 /**
  * HPI Class for extracting HPI information from hpi file.
@@ -52,34 +57,34 @@ public class HPI {
 
     public static final String MANIFEST_PATH = "META-INF/MANIFEST.MF";
 
+    public static Plugin loadHPI(final File file) throws IOException {
+        final JarFile jarFile = new JarFile(file);
+        final long timestamp = jarFile.getEntry(MANIFEST_PATH).getTime();
 
-    public static Plugin loadHPI(File file) throws IOException {
-        JarFile jarFile = new JarFile(file);
-        long timestamp = jarFile.getEntry(MANIFEST_PATH).getTime();
+        final Plugin hpi = HPI.from(file, jarFile.getManifest().getMainAttributes(), timestamp);
 
-        Plugin hpi = HPI.from(jarFile.getManifest().getMainAttributes(), timestamp);
-
-        String wiki = getWiki(file);
+        final String wiki = getWiki(file);
         if (StringUtils.isNotBlank(wiki)) {
             hpi.setWiki(wiki);
         }
 
+        jarFile.close();
+
         return hpi.withExcerpt(getExcerpt(file));
     }
 
-    private static Plugin from(Attributes attributes, long timestamp) throws IOException {
+    private static Plugin from(final File file, final Attributes attributes, final long timestamp) throws IOException {
+        final Digests digests = digests(file);
+
         return new Plugin()
                 .withReleaseTimestamp(releaseTimestampDateFormat().format(timestamp))
                 .withBuildDate(buildDateTimeFormat().format(timestamp))
                 .withName(
-                        notBlank(attributes.getValue(PLUGIN_NAME), "Plugin short name can't be empty")
-                )
+                        notBlank(attributes.getValue(PLUGIN_NAME), "Plugin short name can't be empty"))
                 .withVersion(
                         defaultIfBlank(
                                 attributes.getValue(PLUGIN_VERSION),
-                                attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION)
-                        )
-                )
+                                attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION)))
                 .withGroup(attributes.getValue(GROUP_ID))
                 .withWiki(attributes.getValue(PLUGIN_WIKI_URL))
                 .withTitle(attributes.getValue(PLUGIN_TITLE))
@@ -87,11 +92,33 @@ public class HPI {
                 .withRequiredCore(attributes.getValue(PLUGIN_REQUIRED_JENKINS_VERSION))
                 .withBuiltBy(attributes.getValue(PLUGIN_BUILT_BY))
                 .withDependencies(getDependencies(attributes))
-                .withDevelopers(getDevelopers(attributes));
+                .withDevelopers(getDevelopers(attributes))
+                .withSha1(digests.sha1)
+                .withSha512(digests.sha512);
+    }
+
+    private static Digests digests(final File file) {
+        final Digests digests = new Digests();
+        try (FileInputStream fin = new FileInputStream(file)) {
+            final MessageDigest sha1 = DigestUtils.getSha1Digest();
+            final MessageDigest sha512 = DigestUtils.getSha512Digest();
+            final byte[] buf = new byte[2048];
+            int len;
+            while ((len = fin.read(buf, 0, buf.length)) >= 0) {
+                sha1.update(buf, 0, len);
+                sha512.update(buf, 0, len);
+            }
+
+            digests.sha1 = new String(Base64.encodeBase64(sha1.digest()), "UTF-8");
+            digests.sha512 = new String(Base64.encodeBase64(sha512.digest()), "UTF-8");
+        } catch (final Exception ex) {
+            LOG.error(ex.getMessage(), ex);
+        }
+        return digests;
     }
 
     private static SimpleDateFormat releaseTimestampDateFormat() {
-        SimpleDateFormat releaseFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
+        final SimpleDateFormat releaseFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
         releaseFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return releaseFormat;
     }
@@ -100,26 +127,26 @@ public class HPI {
         return new SimpleDateFormat("MMM dd, yyyy", Locale.US);
     }
 
-    protected static List<Dependency> getDependencies(Attributes attributes) throws IOException {
-        String deps = attributes.getValue(PLUGIN_DEPENDENCIES);
+    protected static List<Dependency> getDependencies(final Attributes attributes) throws IOException {
+        final String deps = attributes.getValue(PLUGIN_DEPENDENCIES);
         if (deps == null) {
             return Collections.emptyList();
         }
 
-        List<Dependency> result = new ArrayList<>();
-        for (String token : deps.split(",")) {
+        final List<Dependency> result = new ArrayList<>();
+        for (final String token : deps.split(",")) {
             result.add(parseDependencyFrom(token));
         }
         return result;
     }
 
     protected static Dependency parseDependencyFrom(String token) {
-        boolean optional = token.endsWith(OPTIONAL_DEPENDENCY);
+        final boolean optional = token.endsWith(OPTIONAL_DEPENDENCY);
         if (optional) {
             token = substringBefore(token, OPTIONAL_DEPENDENCY);
         }
 
-        String[] pieces = token.split(":");
+        final String[] pieces = token.split(":");
 
         return new Dependency()
                 .withName(pieces[0])
@@ -127,21 +154,20 @@ public class HPI {
                 .withOptional(optional);
     }
 
-    protected static List<Developer> getDevelopers(Attributes attributes) throws IOException {
-        String devs = attributes.getValue(PLUGIN_DEVELOPERS);
+    protected static List<Developer> getDevelopers(final Attributes attributes) throws IOException {
+        final String devs = attributes.getValue(PLUGIN_DEVELOPERS);
         if (isBlank(devs)) {
             return Collections.emptyList();
         }
 
-        List<Developer> result = new ArrayList<>();
-        Matcher matcher = DEVELOPERS_PATTERN.matcher(devs);
+        final List<Developer> result = new ArrayList<>();
+        final Matcher matcher = DEVELOPERS_PATTERN.matcher(devs);
         int totalMatched = 0;
         while (matcher.find()) {
             result.add(new Developer()
                     .withName(trimToEmpty(matcher.group(1)))
                     .withDeveloperId(trimToEmpty(matcher.group(2)))
-                    .withEmail(trimToEmpty(matcher.group(3)))
-            );
+                    .withEmail(trimToEmpty(matcher.group(3))));
             totalMatched += matcher.end() - matcher.start();
         }
         if (totalMatched < devs.length()) {
@@ -151,32 +177,37 @@ public class HPI {
         return result;
     }
 
-
-    protected static String getWiki(File hpiFile) {
+    protected static String getWiki(final File hpiFile) {
         try {
-            String baseName = FilenameUtils.getBaseName(hpiFile.getName());
-            File exceptFile = new File(hpiFile.getParent(), baseName + ".wiki");
+            final String baseName = FilenameUtils.getBaseName(hpiFile.getName());
+            final File exceptFile = new File(hpiFile.getParent(), baseName + ".wiki");
             if (exceptFile.exists()) {
                 return FileUtils.readFileToString(exceptFile, "UTF-8");
             } else {
                 return "";
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return "";
         }
     }
 
-    protected static String getExcerpt(File hpiFile) {
+    protected static String getExcerpt(final File hpiFile) {
         try {
-            String baseName = FilenameUtils.getBaseName(hpiFile.getName());
-            File exceptFile = new File(hpiFile.getParent(), baseName + ".info");
+            final String baseName = FilenameUtils.getBaseName(hpiFile.getName());
+            final File exceptFile = new File(hpiFile.getParent(), baseName + ".info");
             if (exceptFile.exists()) {
                 return FileUtils.readFileToString(exceptFile, "UTF-8").replace("\r\n", "<br/>\n");
             } else {
                 return "";
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return "";
         }
     }
+
+    private static class Digests {
+        private String sha1;
+        private String sha512;
+    }
+
 }

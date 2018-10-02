@@ -48,6 +48,14 @@
             "type": "string"
         },
 
+        "sha1": {
+            "type": "string"
+        },
+
+        "sha512": {
+            "type": "string"
+        },
+
         "dependencies": {
             "type": "array",
             "items": {
