@@ -21,7 +21,7 @@ ADD . ${JUSEPPE_BASE_DIR}
 WORKDIR ${JUSEPPE_BASE_DIR}
 
 #Locally can be replaced with "mvn package && docker build ..." to avoid downloading lot of jars
-RUN ["mvn", "package"]
+RUN ["mvn", "package", "-Dmaven.test.skip=true"]
 
 # Self-signed certificate
 RUN openssl genrsa -out ${JUSEPPE_PRIVATE_KEY_PATH} 2048 \
