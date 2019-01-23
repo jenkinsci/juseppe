@@ -6,7 +6,7 @@
 Run it with mounted plugins folder as volume. Remember to set `JUSEPPE_BASE_URI` env var
 
 ```
-docker run --name juseppe -v /your/plugins/dir/:/juseppe/plugins/ -e JUSEPPE_BASE_URI=http://my.company.com -p 80:8080 lanwen/juseppe
+docker run --name juseppe -v /your/plugins/dir/:/juseppe/plugins/ -e JUSEPPE_BASE_URI=http://my.company.com -e JUSEPPE_BIND_HOST=0.0.0.0 -p 80:8080 lanwen/juseppe
 ```
 
 Then it will be available on `http://dockerhost:80/update-center.json`
