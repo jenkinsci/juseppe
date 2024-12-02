@@ -102,8 +102,14 @@ public class Signer {
         X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
 
         Object o = new PEMParser(new FileReader(privateKey)).readObject();
-        isInstanceOf(PEMKeyPair.class, o, "File %s is not rsa private key!", privateKey);
-        PrivateKeyInfo key = ((PEMKeyPair) o).getPrivateKeyInfo();
+        PrivateKeyInfo key;
+        if(o instanceof PEMKeyPair keyPair) {
+            key = keyPair.getPrivateKeyInfo();
+        } else if(o instanceof PrivateKeyInfo) {
+            key = (PrivateKeyInfo) o;
+        } else {
+            throw new IllegalArgumentException(String.format("File %s is not rsa private key!", privateKey));
+        }
 
         SignatureGenerator signatureGenerator = new SignatureGenerator(signer, key);
 

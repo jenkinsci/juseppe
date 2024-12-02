@@ -77,6 +77,13 @@
             <artifactId>guava</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -86,7 +93,7 @@
             <plugin>
                 <groupId>org.jsonschema2pojo</groupId>
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-                <version>0.4.7</version>
+                <version>1.2.2</version>
                 <configuration>
                     <sourceDirectory>${project.basedir}/src/main/resources/jsonschema</sourceDirectory>
                     <outputDirectory>${project.build.directory}/generated-sources/java-gen</outputDirectory>
@@ -94,8 +101,12 @@
                     <annotationStyle>gson</annotationStyle>
                     <includeToString>false</includeToString>
                     <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
+                    <includeJsr303Annotations>true</includeJsr303Annotations>
+                    <includeJsr305Annotations>false</includeJsr305Annotations>
+                    <useJakartaValidation>true</useJakartaValidation>
                     <sourceType>jsonschema</sourceType>
                     <generateBuilders>true</generateBuilders>
+                    <includeGeneratedAnnotation>false</includeGeneratedAnnotation>
                 </configuration>
                 <executions>
                     <execution>

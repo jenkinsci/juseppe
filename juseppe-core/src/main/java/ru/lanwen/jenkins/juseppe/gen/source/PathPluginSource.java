@@ -16,8 +16,6 @@ import java.util.stream.StreamSupport;
 import ru.lanwen.jenkins.juseppe.beans.Plugin;
 import ru.lanwen.jenkins.juseppe.gen.HPI;
 
-import static java.lang.String.format;
-
 /**
  * @author lanwen (Merkushev Kirill)
  */
@@ -50,7 +48,7 @@ public class PathPluginSource implements PluginSource {
                 }
             }).filter(Objects::nonNull).collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException(format("Can't read path %s", pluginsDir.toAbsolutePath()), e);
+            throw new RuntimeException("Can't read path %s".formatted(pluginsDir.toAbsolutePath()), e);
         }
     }
 }

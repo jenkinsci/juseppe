@@ -11,7 +11,6 @@ import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.io.Resources.getResource;
-import static java.lang.String.format;
 
 /**
  * @author lanwen (Merkushev Kirill)
@@ -45,7 +44,7 @@ public class ServeRule extends ExternalResource {
     }
 
     public URI uri() {
-        return URI.create(format("http://localhost:%s", port));
+        return URI.create("http://localhost:%s".formatted(port));
     }
 
     private Integer findRandomOpenPortOnAllLocalInterfaces() throws IOException {
