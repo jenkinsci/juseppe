@@ -7,7 +7,7 @@ import ru.lanwen.jenkins.juseppe.props.Props;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -23,7 +23,7 @@ public class PrintCertCommand implements Runnable {
     @Override
     public void run() {
         try {
-            Files.readAllLines(Paths.get(Props.populated().getCertPath()), UTF_8).forEach(System.out::println);
+            Files.readAllLines(Path.of(Props.populated().getCertPath()), UTF_8).forEach(System.out::println);
         } catch (IOException e) {
             LOG.error("Can't read certificate {}", Props.populated().getCertPath(), e);
         }

@@ -34,7 +34,7 @@ public class SavableSite {
         try {
             return Files.write(whereToSave, Collections.singleton(view.content()));
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Can't save json to file %s", whereToSave.toAbsolutePath()), e);
+            throw new RuntimeException("Can't save json to file %s".formatted(whereToSave.toAbsolutePath()), e);
         }
     }
 }

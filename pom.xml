@@ -23,8 +23,7 @@
     <scm>
         <url>https://github.com/yandex-qatools/juseppe</url>
         <connection>scm:git:git://github.com/yandex-qatools/juseppe.git</connection>
-        <developerConnection>scm:git:git@github.com:yandex-qatools/juseppe.git
-        </developerConnection>
+        <developerConnection>scm:git:git@github.com:yandex-qatools/juseppe.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     
@@ -140,9 +139,9 @@
              </dependency>
 
              <dependency>
-                 <groupId>com.jayway.restassured</groupId>
+                 <groupId>io.rest-assured</groupId>
                  <artifactId>rest-assured</artifactId>
-                 <version>2.8.0</version>
+                 <version>5.5.0</version>
                  <scope>test</scope>
              </dependency>
              
@@ -154,12 +153,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.13.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
                     <optimize>true</optimize>
                     <encoding>utf-8</encoding>
+                    <release>17</release>
                 </configuration>
             </plugin>
 
@@ -181,7 +179,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.15</version>
+                <version>3.6.0</version>
                 <configuration>
                     <configLocation>juseppe-core/src/test/resources/checkstyle-config.xml</configLocation>
                 </configuration>
@@ -190,11 +188,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>3.0.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.7</version>
             </plugin>
         </plugins>
     </reporting>

@@ -31,8 +31,8 @@ public final class JuseppeCli {
         Runnable parse = builder.build().parse(args);
         parse.run();
 
-        if (parse instanceof JuseppeCommand) {
-            System.exit(((JuseppeCommand) parse).getExitCode());
+        if (parse instanceof JuseppeCommand command) {
+            System.exit(command.getExitCode());
         }
     }
 

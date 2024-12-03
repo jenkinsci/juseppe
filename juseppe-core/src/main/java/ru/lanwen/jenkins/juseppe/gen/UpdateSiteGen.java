@@ -9,7 +9,7 @@ import ru.lanwen.jenkins.juseppe.gen.view.ReleaseHistoryUpdateSite;
 import ru.lanwen.jenkins.juseppe.props.Props;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static ru.lanwen.jenkins.juseppe.props.Props.populated;
@@ -54,11 +53,11 @@ public class UpdateSiteGen {
                 site -> site.withUpdateCenterVersion(Props.UPDATE_CENTER_VERSION)
                         .withId(props.getUcId())
         ).register(
-                site -> Collections.singleton(new PathPluginSource(Paths.get(props.getPluginsDir()), props.getRecursiveWatch()))
+                site -> Collections.singleton(new PathPluginSource(Path.of(props.getPluginsDir()), props.getRecursiveWatch()))
                         .forEach(source -> site.getPlugins().addAll(source.plugins()))
         ).register(
                 site -> site.getPlugins()
-                        .forEach(plugin -> plugin.setUrl(format("%s/%s", props.getBaseurl(), plugin.getUrl())))
+                        .forEach(plugin -> plugin.setUrl("%s/%s".formatted(props.getBaseurl(), plugin.getUrl())))
         ).register(
                 site -> {
                     try {
@@ -86,7 +85,7 @@ public class UpdateSiteGen {
                 new JsonpUpdateSite(filled, props.getUcJsonName()),
                 new ReleaseHistoryUpdateSite(filled, props.getReleaseHistoryJsonName())
         )
-                .map(view -> new SavableSite(Paths.get(props.getSaveto()), view))
+                .map(view -> new SavableSite(Path.of(props.getSaveto()), view))
                 .collect(toList());
 
         return new SavableSitesCollection(files);

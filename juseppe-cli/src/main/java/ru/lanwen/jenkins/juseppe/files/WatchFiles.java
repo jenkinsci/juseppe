@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -19,7 +18,6 @@ import java.util.Map;
 import ru.lanwen.jenkins.juseppe.gen.UpdateSiteGen;
 import ru.lanwen.jenkins.juseppe.props.Props;
 
-import static java.lang.String.format;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
@@ -45,9 +43,9 @@ public class WatchFiles extends Thread {
 
     public WatchFiles configureFor(Props props) throws IOException {
         this.props = props;
-        path = Paths.get(props.getPluginsDir());
+        path = Path.of(props.getPluginsDir());
         this.keys = new HashMap<>();
-        setName(format("file-watcher-%s", path.getFileName()));
+        setName("file-watcher-%s".formatted(path.getFileName()));
 
         watcher = this.path.getFileSystem().newWatchService();
         walkAndRegisterDirectories(path);

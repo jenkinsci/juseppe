@@ -4,7 +4,7 @@ package ru.lanwen.jenkins.juseppe.cli;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
 
 /**
  * @author lanwen (Merkushev Kirill)
@@ -21,7 +21,7 @@ public class ServeCommandTest {
                 .log().all()
                 .expect()
                 .log().status()
-                .get("update-center.json").then().assertThat().statusCode(200);
+                .when().get("update-center.json").then().assertThat().statusCode(200);
     }
 
     @Test(timeout = 10000)
@@ -31,7 +31,7 @@ public class ServeCommandTest {
                 .log().all()
                 .expect()
                 .log().status()
-                .get("clang-scanbuild-plugin.hpi").then().assertThat().statusCode(200);
+                .when().get("clang-scanbuild-plugin.hpi").then().assertThat().statusCode(200);
     }
 
     @Test(timeout = 10000)
@@ -41,6 +41,6 @@ public class ServeCommandTest {
                 .log().all()
                 .expect()
                 .log().status()
-                .get("sample-pipeline-dsl-ext-plugin-0.1.0.jpi").then().assertThat().statusCode(200);
+                .when().get("sample-pipeline-dsl-ext-plugin-0.1.0.jpi").then().assertThat().statusCode(200);
     }
 }

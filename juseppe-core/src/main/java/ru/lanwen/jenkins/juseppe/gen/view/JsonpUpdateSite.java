@@ -25,7 +25,7 @@ public class JsonpUpdateSite implements UpdateSiteView {
     @Override
     public String content() {
         String json = UpdateSiteSerializer.serializer().toJson(site);
-        return String.format("updateCenter.post(%n%s%n);", json);
+        return "updateCenter.post(%n%s%n);".formatted(json);
     }
 
     @Override
